@@ -1,16 +1,14 @@
 #!/usr/bin/env bash
-# Takes a subdomain and a domain and returns information about the subdomain
-
-print_info () {
-    dig "$1" | grep -A1 'ANSWER SECTION:' | sed -r "s/$1./$2/g" | awk -F" " ' NR==2 { print "The subdomain " $1 " is a " $4 " record and points to " $5 }'
+# This script shows information about web servers of a domain.
+info(){
+	dig "$2"."$1"|awk -v sbd="$2" '/ANSWER SECTION:/{getline; print "The subdomain " sbd " is a " $4 " record and points to " $5}'
 }
-
-if [ "$#" -eq 2 ]
+if ! [ "$2" ]
 then
-    print_info "$2.$1" "$2"
+	info "$1" "www"
+	info "$1" "lb-01"
+	info "$1" "web-01"
+	info "$1" "web-02"
 else
-    print_info "www.$1" "www"
-    print_info "lb-01.$1" "lb-01"
-    print_info "web-01.$1" "web-01"
-    print_info "web-02.$1" "web-02"
+	info "$1" "$2"
 fi
